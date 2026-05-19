@@ -19,10 +19,7 @@ EBTNodeResult::Type UBTTask_RotateTurret::ExecuteTask(UBehaviorTreeComponent& Ow
 	return EBTNodeResult::InProgress;
 }
 
-void UBTTask_RotateTurret::TickTask(
-	UBehaviorTreeComponent& OwnerComp,
-	uint8* NodeMemory,
-	float DeltaSeconds)
+void UBTTask_RotateTurret::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	if (!AIController)
@@ -48,4 +45,10 @@ void UBTTask_RotateTurret::TickTask(
 	FRotator LookAt = UKismetMathLibrary::FindLookAtRotation(Turret->GetActorLocation(), Target->GetActorLocation());
 	FRotator NewRotation = FMath::RInterpTo(Turret->GetActorRotation(), LookAt, DeltaSeconds, RotationSpeed);
 	Turret->SetActorRotation(NewRotation);
+
+	if (NewRotation.Equals(LookAt, 0.01f))
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return;
+	}
 }

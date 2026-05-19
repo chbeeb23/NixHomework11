@@ -19,7 +19,39 @@ ANixAITurret::ANixAITurret()
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretMesh"));
 	TurretMesh->SetupAttachment(RootSceneComponent);
 
+	ProjectilePoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectilePoint"));
+	ProjectilePoint->SetupAttachment(TurretMesh);
+
 	AIControllerClass = ANixAIController::StaticClass();
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+}
+
+void ANixAITurret::Attack()
+{
+	if (!bCanAttack)
+		return;
+
+	bCanAttack = false;
+
+	if (!ProjectileClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is null"));
+		return;
+	}
+
+	FVector SpawnLocation = ProjectilePoint->GetComponentLocation();
+	FRotator SpawnRotation = ProjectilePoint->GetComponentRotation();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+	GetWorldTimerManager().SetTimer(FireCooldownHandle, this, &ANixAITurret::ResetAttack, 0.5f, false);
+}
+
+void ANixAITurret::ResetAttack()
+{
+	bCanAttack = true;
 }

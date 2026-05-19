@@ -17,6 +17,8 @@ public:
 	// Sets default values for this pawn's properties
 	ANixAITurret();
 
+	void Attack();
+
 protected:
 	// Root component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -25,4 +27,17 @@ protected:
 	// Static mesh component for the turret
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UStaticMeshComponent* TurretMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	USceneComponent* ProjectilePoint;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> ProjectileClass;
+
+	bool bCanAttack = true;
+
+	FTimerHandle FireCooldownHandle;
+
+	UFUNCTION()
+	void ResetAttack();
 };
